@@ -56,11 +56,13 @@ def rlstop():
 def rabbitRotateL():
     rforward()  # GPIO.output(DIG1, GPIO.HIGH)
     lback()  # GPIO.output(DIG2, GPIO.HIGH)
+    print("Rotating Left")
 
 
 def rabbitRotateR():
     lforward()  # GPIO.output(DIG1, GPIO.LOW)
     rback()  # GPIO.output(DIG2, GPIO.LOW)
+    print("Rotating Right")
 
 
 def on_message(client, userdata, message):
