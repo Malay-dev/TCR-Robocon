@@ -29,6 +29,7 @@ def CO_ORDINATES():
 
 
 def findAruco(img, marker_size=6, total_markers=250, draw=True):
+    flag = 0
     global aruco_id
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     key = getattr(aruco, f'DICT_{marker_size}X{marker_size}_{total_markers}')
@@ -52,7 +53,8 @@ def findAruco(img, marker_size=6, total_markers=250, draw=True):
                 2,
                 cv2.LINE_AA,
             )
-    return ARUCO_DICT, ARUCO_PARAMS
+        flag = 1
+    return ARUCO_DICT, ARUCO_PARAMS, flag
 
 
 def distance_pose(img, ARUCO_DICT, ARUCO_PARAMS):

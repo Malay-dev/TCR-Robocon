@@ -38,16 +38,20 @@ def control_bot(client,userdata,message):
         capture = cv2.VideoCapture(0)
         while True:
             if VideoCap:
+                flag = 0
                 _, frame = capture.read()
                 # frame = cv2.resize(frame, (0, 0), fx=0.7, fy=0.7)
-                ARUCO_DICT, ARUCO_PARAMS = findAruco(frame)
+                ARUCO_DICT, ARUCO_PARAMS, flag = findAruco(frame)
                 distance_pose(frame, ARUCO_DICT=ARUCO_DICT, ARUCO_PARAMS=ARUCO_PARAMS)
-                if ID() > -1:
+                if ID() == 44 and flag == 1:
                     x,y = CO_ORDINATES()
                     PID(x)
+                else:
+                    PID(0)
                 cv2.imshow("input", frame)
                 if cv2.waitKey(1) == 113:
-                    break
+                    client.on_message = control_bot     
+                    break               
         cv2.destroyAllWindows()
         
 

@@ -17,10 +17,12 @@ def throttle(value):
 def Controller():
     while True:
         for event in pygame.event.get():
-            # print(event)
+            print(event)
             if event.type == pygame.JOYBUTTONDOWN:
                 if pygame.joystick.Joystick(0).get_button(5):
                     return "ALIGN_ARUCO"
+                if pygame.joystick.Joystick(0).get_button(6):
+                    return "STOP_EVENT"
                 if pygame.joystick.Joystick(0).get_button(7):
                     return "STOP-0"
             if event.type == pygame.JOYAXISMOTION:
