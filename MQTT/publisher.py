@@ -64,7 +64,7 @@ def MOVE_Bot():
 
 client_id = "Controller"
 port = 1883
-broker = "localhost"  # or IP address
+broker = "192.168.140.134"  # or IP address
 
 client = mqtt.Client(client_id)
 if client.connect(broker, port) != 0:

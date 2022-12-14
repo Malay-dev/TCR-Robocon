@@ -32,11 +32,11 @@ def PID(x):
         toError = error + toError
         print(PIDvalue)
         res_val = mapping(PIDvalue, 0, 135, 0, 100)
-        if PIDvalue > 0:
+        if x > 0:
             # LEFT
             LEFT(res_val)
-        elif PIDvalue < 0:
+        elif x < 0:
             # RIGHT
             RIGHT(res_val)
-        else:
-            STOP()
+        
+        

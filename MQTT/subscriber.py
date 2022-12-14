@@ -46,8 +46,8 @@ def control_bot(client,userdata,message):
                 if ID() == 44 and flag == 1:
                     x,y = CO_ORDINATES()
                     PID(x)
-                else:
-                    PID(0)
+                elif flag == 0:
+                    STOP()
                 cv2.imshow("input", frame)
                 if cv2.waitKey(1) == 113:
                     client.on_message = control_bot     
