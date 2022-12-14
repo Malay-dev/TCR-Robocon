@@ -7,7 +7,21 @@ sys.path.append("Aruco")
 from Detect_Aruco import ID, DISTANCE, CO_ORDINATES, ANGLE, findAruco, distance_pose
 from Align_Aruco_Elephant import PID
 
+from picamera2 import Picamera2
+
+VideoCap = True
+picam2 = Picamera2()
+picam2.configure(picam2.create_preview_configuration(main={"format": 'XRGB8888', "size":(640,480)}))
+picam2.start()
+
+if VideoCap:
+    flag = 0
+    frame = picam2.capture_array()
+
+cv2.imshow("Elephant_feed", frame)
+
 def control_bot(client,userdata,message):
+    global frame
     print("Received message: ", str(message.payload.decode("utf-8")))
     Recieve = str(message.payload.decode("utf-8")).split("-")
     input = Recieve[0]
@@ -39,10 +53,11 @@ def control_bot(client,userdata,message):
         while True:
             if VideoCap:
                 flag = 0
-                _, frame = capture.read()
+                #_, frame = capture.read()
                 # frame = cv2.resize(frame, (0, 0), fx=0.7, fy=0.7)
-                ARUCO_DICT, ARUCO_PARAMS, flag = findAruco(frame)
-                distance_pose(frame, ARUCO_DICT=ARUCO_DICT, ARUCO_PARAMS=ARUCO_PARAMS)
+                img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                ARUCO_DICT, ARUCO_PARAMS, flag = findAruco(img)
+                distance_pose(img, ARUCO_DICT=ARUCO_DICT, ARUCO_PARAMS=ARUCO_PARAMS)
                 if ID() == 44 and flag == 1:
                     x,y = CO_ORDINATES()
                     PID(x)
@@ -52,7 +67,7 @@ def control_bot(client,userdata,message):
                 if cv2.waitKey(1) == 113:
                     client.on_message = control_bot     
                     break               
-        cv2.destroyAllWindows()
+        
         
 
 

@@ -31,7 +31,7 @@ def CO_ORDINATES():
 def findAruco(img, marker_size=6, total_markers=250, draw=True):
     flag = 0
     global aruco_id
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     key = getattr(aruco, f'DICT_{marker_size}X{marker_size}_{total_markers}')
     ARUCO_DICT = aruco.Dictionary_get(key)
     ARUCO_PARAMS = aruco.DetectorParameters_create()
@@ -59,7 +59,7 @@ def findAruco(img, marker_size=6, total_markers=250, draw=True):
 
 def distance_pose(img, ARUCO_DICT, ARUCO_PARAMS):
     global aruco_distance, aruco_angle, x, y
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     corners, ids, reject = aruco.detectMarkers(
         gray, ARUCO_DICT, parameters=ARUCO_PARAMS)
     if corners:
