@@ -2,10 +2,10 @@ import paho.mqtt.client as mqtt
 import cv2
 import sys
 sys.path.append("Motors")
-from Motor_Setup import *
+from Motor_Setup_Elephant import *
 sys.path.append("Aruco")
 from Detect_Aruco import ID, DISTANCE, CO_ORDINATES, ANGLE, findAruco, distance_pose
-from Align_Aruco import PID
+from Align_Aruco_Elephant import PID
 
 def control_bot(client,userdata,message):
     print("Received message: ", str(message.payload.decode("utf-8")))
@@ -33,7 +33,7 @@ def control_bot(client,userdata,message):
         ROTATE_RIGHT(pwmval)
     elif(input == "STOP"):
         STOP()
-    elif(input == "ALIGN_ARUCO"):
+    elif(input == "ALIGN_ARUCO_ELEPHANT"):
         VideoCap = True
         capture = cv2.VideoCapture(0)
         while True:
@@ -48,7 +48,7 @@ def control_bot(client,userdata,message):
                     PID(x)
                 elif flag == 0:
                     STOP()
-                cv2.imshow("input", frame)
+                cv2.imshow("Elephant_Feed", frame)
                 if cv2.waitKey(1) == 113:
                     client.on_message = control_bot     
                     break               
@@ -56,7 +56,7 @@ def control_bot(client,userdata,message):
         
 
 
-client_id = "RASPI"
+client_id = "RASPI_1"
 port = 1883
 broker = "localhost"  # or IP address
 
@@ -65,6 +65,6 @@ if client.connect(broker, port) != 0:
     print("Could not connect to client")
     sys.exit(-1)
 
-client.subscribe("CONTROLLER_INPUTS")
+client.subscribe("CONTROLLER_INPUTS_ELEPHANT")
 client.on_message = control_bot
 client.loop_forever()
