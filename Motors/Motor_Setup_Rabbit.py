@@ -7,11 +7,11 @@ GPIO.setwarnings(False)
 AN1 = 15
 DIG1 = 14
 # MOTOR-2 LEFT
-AN2 = 4
-DIG2 = 18
+AN2 = 26
+DIG2 = 19
 # MOTOR-3 RIGHT
-AN3 = 27
-DIG3 = 17
+AN3 = 9
+DIG3 = 10
 # MOTOR-4 RIGHT
 AN4 = 23
 DIG4 = 22
