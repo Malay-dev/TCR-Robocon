@@ -1,7 +1,9 @@
-
 import paho.mqtt.client as mqtt
 import pygame
-
+import sys
+sys.path.append("Aruco")
+from Detect_Aruco import ID, DISTANCE, CO_ORDINATES, ANGLE, findAruco, distance_pose
+from Align_Aruco_Rabbit import PID
 pygame.init()
 # window = pygame.display.set_mode((200, 200))
 
@@ -11,10 +13,68 @@ joystick.init()
 
 def throttle(value):
     value = abs(value)
-    return int(75*value)
+    return int(30*value)
 
 
 def Controller_Elephant():
+    while True:
+        for event in pygame.event.get():
+            print(event)
+            if event.type == pygame.JOYBUTTONDOWN:
+                # if pygame.joystick.Joystick(0).get_button(5):
+                #     return "ALIGN_ARUCO_ELEPHANT"
+                if pygame.joystick.Joystick(0).get_button(5):
+                    VideoCap = True
+                    capture = cv2.VideoCapture(0)
+                    while True:
+                        if VideoCap:
+                            _, frame = capture.read()
+                            # frame = cv2.resize(frame, (0, 0), fx=0.7, fy=0.7)
+                            ARUCO_DICT, ARUCO_PARAMS = findAruco(frame)
+                            distance_pose(frame, ARUCO_DICT=ARUCO_DICT, ARUCO_PARAMS=ARUCO_PARAMS)
+                            if ID() > -1:
+                                a=ANGLE()
+                                PID(a)
+                            cv2.imshow("Rabbit_Feed", frame)
+                            if cv2.waitKey(1) == 113:
+                                client.on_message = control_bot     
+                                break 
+                    cv2.destroyAllWindows()
+                if pygame.joystick.Joystick(0).get_button(6):
+                    return "STOP_EVENT"
+                if pygame.joystick.Joystick(0).get_button(7):
+                    return "STOP-0"
+                
+            if event.type == pygame.JOYAXISMOTION:
+                AXIS_0 = pygame.joystick.Joystick(0).get_axis(0)
+                # Left - Right
+                AXIS_1 = pygame.joystick.Joystick(0).get_axis(1)
+                # Forward - Backward
+                AXIS_4 = pygame.joystick.Joystick(0).get_axis(4)
+                # Rotate Left
+                AXIS_5 = pygame.joystick.Joystick(0).get_axis(5)
+                # Rotate Right
+                if event.__dict__.get("axis") == 1:
+                    if AXIS_1 < 0 and AXIS_1 >= -1:
+                        return "FORWARD-" + str(throttle(AXIS_1))
+                    else:
+                        return "BACKWARD-" + str(throttle(AXIS_1))
+                elif event.__dict__.get("axis") == 0:
+                    if AXIS_0 < 0 and AXIS_0 >= -1:
+                        return "LEFT-" + str(throttle(AXIS_0))
+                    else:
+                        return "RIGHT-" + str(throttle(AXIS_0))
+                elif round(AXIS_4) == -1 and round(AXIS_5) == -1:
+                    return "STOP-0"
+                elif event.__dict__.get("axis") == 4:
+                    return "ROTATE_LEFT-" + str(throttle(AXIS_4))
+                elif event.__dict__.get("axis") == 5:
+                    return "ROTATE_RIGHT-" + str(throttle(AXIS_5))
+                else:
+                    return "STOP-"+"0"
+            return 0
+
+def Controller_Rabbit():
     while True:
         for event in pygame.event.get():
             print(event)
@@ -54,46 +114,6 @@ def Controller_Elephant():
                     return "STOP-"+"0"
             return 0
 
-# def Controller_Rabbit():
-#     while True:
-#         for event in pygame.event.get():
-#             print(event)
-#             if event.type == pygame.JOYBUTTONDOWN:
-#                 if pygame.joystick.Joystick(0).get_button(5):
-#                     return "ALIGN_ARUCO_ELEPHANT"
-#                 if pygame.joystick.Joystick(0).get_button(6):
-#                     return "STOP_EVENT"
-#                 if pygame.joystick.Joystick(0).get_button(7):
-#                     return "STOP-0"
-#             if event.type == pygame.JOYAXISMOTION:
-#                 AXIS_0 = pygame.joystick.Joystick(0).get_axis(0)
-#                 # Left - Right
-#                 AXIS_1 = pygame.joystick.Joystick(0).get_axis(1)
-#                 # Forward - Backward
-#                 AXIS_4 = pygame.joystick.Joystick(0).get_axis(4)
-#                 # Rotate Left
-#                 AXIS_5 = pygame.joystick.Joystick(0).get_axis(5)
-#                 # Rotate Right
-#                 if event.__dict__.get("axis") == 1:
-#                     if AXIS_1 < 0 and AXIS_1 >= -1:
-#                         return "FORWARD-" + str(throttle(AXIS_1))
-#                     else:
-#                         return "BACKWARD-" + str(throttle(AXIS_1))
-#                 elif event.__dict__.get("axis") == 0:
-#                     if AXIS_0 < 0 and AXIS_0 >= -1:
-#                         return "LEFT-" + str(throttle(AXIS_0))
-#                     else:
-#                         return "RIGHT-" + str(throttle(AXIS_0))
-#                 elif round(AXIS_4) == -1 and round(AXIS_5) == -1:
-#                     return "STOP-0"
-#                 elif event.__dict__.get("axis") == 4:
-#                     return "ROTATE_LEFT-" + str(throttle(AXIS_4))
-#                 elif event.__dict__.get("axis") == 5:
-#                     return "ROTATE_RIGHT-" + str(throttle(AXIS_5))
-#                 else:
-#                     return "STOP-"+"0"
-#             return 0
-
 
 def MOVE_Bot_1():
     Value = Controller_Elephant()
@@ -110,7 +130,7 @@ def MOVE_Bot_1():
 
 client_id = "Controller"
 port = 1883
-broker = "192.168.140.134"  # or IP address
+broker = "192.168.238.217"  # or IP address
 
 client = mqtt.Client(client_id)
 if client.connect(broker, port) != 0:

@@ -1,100 +1,179 @@
-import paho.mqtt.client as mqtt
-import time
 import RPi.GPIO as GPIO
-from time import sleep
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-AN2 = 11
-AN1 = 8
-DIG2 = 25
-DIG1 = 7
 
-GPIO.setup(AN2, GPIO.OUT)
+# MOTOR-1 LEFT
+AN1 = 15
+DIG1 = 14
+# MOTOR-2 LEFT
+AN2 = 4
+DIG2 = 18
+# MOTOR-3 RIGHT
+AN3 = 27
+DIG3 = 17
+# MOTOR-4 RIGHT
+AN4 = 23
+DIG4 = 22
+
+# MOTOR SETUP
 GPIO.setup(AN1, GPIO.OUT)
+GPIO.setup(DIG1, GPIO.OUT)
+GPIO.setup(AN2, GPIO.OUT)
 GPIO.setup(DIG2, GPIO.OUT)
-GPIO.setup(DIG1, GPIO.OUT)		# delay for 1 seconds
+GPIO.setup(AN3, GPIO.OUT)
+GPIO.setup(DIG3, GPIO.OUT)
+GPIO.setup(AN3, GPIO.OUT)
+GPIO.setup(DIG3, GPIO.OUT)
 
-p1 = GPIO.PWM(AN1, 50)			# set pwm for M1
-p2 = GPIO.PWM(AN2, 50)			# set pwm for M2
+p1 = GPIO.PWM(AN1, 100)			# set pwm for M1
+p2 = GPIO.PWM(AN2, 100)			# set pwm for M2
+p3 = GPIO.PWM(AN3, 100)			# set pwm for M3
+p4 = GPIO.PWM(AN4, 100)			# set pwm for M4
 
+# "" INITAL VALUE -- STOP ""
 GPIO.output(DIG1, GPIO.LOW)          # Direction can ignore
 GPIO.output(DIG2, GPIO.LOW)          # Direction can ignore
+GPIO.output(DIG3, GPIO.LOW)          # Direction can ignore
+GPIO.output(DIG4, GPIO.LOW)          # Direction can ignore
 p1.start(0)                          # set speed for M1 at 0%
 p2.start(0)
+p3.start(0)
+p4.start(0)
 
-# Functions for Control for Each Wheel- can be called as needed Universally
+
+def map_motor_4(val, x, y, a, b):
+    res = (b-a)/(y-x)
+    return val*res
 
 
-def rforward():
+def FORWARD(pwm_value):
+    print("move forward")
     GPIO.output(DIG1, GPIO.HIGH)
-    p1.start(25)
-
-
-def rback():
-    GPIO.output(DIG1, GPIO.LOW)
-    p1.start(25)
-
-
-def lforward():
-    GPIO.output(DIG2, GPIO.LOW)
-    p2.start(25)
-
-
-def lback():
     GPIO.output(DIG2, GPIO.HIGH)
-    p2.start(25)
+    GPIO.output(DIG3, GPIO.HIGH)
+    GPIO.output(DIG4, GPIO.HIGH)
+    p1.start(pwm_value)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
 
 
-def rlstop():
+def BACKWARD(pwm_value):
+    print("move backward")
+    GPIO.output(DIG1, GPIO.LOW)
+    GPIO.output(DIG2, GPIO.LOW)
+    GPIO.output(DIG3, GPIO.LOW)
+    GPIO.output(DIG4, GPIO.LOW)
+    p1.start(pwm_value)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
+
+
+def LEFT(pwm_value):
+    print("move left")
+    GPIO.output(DIG1, GPIO.LOW)
+    GPIO.output(DIG2, GPIO.LOW)
+    GPIO.output(DIG3, GPIO.HIGH)
+    GPIO.output(DIG4, GPIO.HIGH)
+    p1.start(pwm_value)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
+
+
+def RIGHT(pwm_value):
+    print("move right")
+    GPIO.output(DIG1, GPIO.HIGH)
+    GPIO.output(DIG2, GPIO.HIGH)
+    GPIO.output(DIG3, GPIO.LOW)
+    GPIO.output(DIG4, GPIO.LOW)
+    p1.start(pwm_value)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
+
+
+def LEFT_FORWARD_DIAGONAL(pwm_value):
+    print("move lfd")
+    GPIO.output(DIG1, GPIO.HIGH)
+    GPIO.output(DIG2, GPIO.HIGH)
+    GPIO.output(DIG3, GPIO.HIGH)
+    GPIO.output(DIG4, GPIO.HIGH)
+    p1.start(0)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(0)
+
+
+def RIGHT_FORWARD_DIAGONAL(pwm_value):
+    print("move rfd")
+    GPIO.output(DIG1, GPIO.HIGH)
+    GPIO.output(DIG2, GPIO.HIGH)
+    GPIO.output(DIG3, GPIO.HIGH)
+    GPIO.output(DIG4, GPIO.HIGH)
+    p1.start(pwm_value)
+    p2.start(0)
+    p3.start(0)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
+
+
+def LEFT_BACKWARD_DIAGONAL(pwm_value):
+    print("move lbd")
+    GPIO.output(DIG1, GPIO.LOW)
+    GPIO.output(DIG2, GPIO.LOW)
+    GPIO.output(DIG3, GPIO.LOW)
+    GPIO.output(DIG4, GPIO.LOW)
+    p1.start(0)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(0)
+
+
+def RIGHT_BACKWARD_DIAGONAL(pwm_value):
+    print("move rbd")
+    GPIO.output(DIG1, GPIO.LOW)
+    GPIO.output(DIG2, GPIO.LOW)
+    GPIO.output(DIG3, GPIO.LOW)
+    GPIO.output(DIG4, GPIO.LOW)
+    p1.start(pwm_value)
+    p2.start(0)
+    p3.start(0)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
+
+
+def STOP():
+    print("Stop")
+    GPIO.output(DIG1, GPIO.LOW)
+    GPIO.output(DIG2, GPIO.LOW)
+    GPIO.output(DIG3, GPIO.LOW)
+    GPIO.output(DIG4, GPIO.LOW)
     p1.start(0)
     p2.start(0)
-
-# Rabbit Rotations FUNCTIONs
-
-
-def rabbitRotateL():
-    rforward()  # GPIO.output(DIG1, GPIO.HIGH)
-    lback()  # GPIO.output(DIG2, GPIO.HIGH)
-    print("Rotating Left")
+    p3.start(0)
+    p4.start(0)
 
 
-def rabbitRotateR():
-    lforward()  # GPIO.output(DIG1, GPIO.LOW)
-    rback()  # GPIO.output(DIG2, GPIO.LOW)
-    print("Rotating Right")
+def ROTATE_LEFT(pwm_value):
+    print("Rotate left")
+    GPIO.output(DIG1, GPIO.LOW)
+    GPIO.output(DIG2, GPIO.LOW)
+    GPIO.output(DIG3, GPIO.HIGH)
+    GPIO.output(DIG4, GPIO.HIGH)
+    p1.start(pwm_value)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
 
 
-def on_message(client, userdata, message):
-    inp = str(message.payload.decode("utf-8"))
-    print(inp)
-    if inp == "STOP":
-        rlstop()
-
-    elif inp == "BACKWARDS":
-        rback()  # GPIO.output(DIG1, GPIO.LOW)
-        lback()  # GPIO.output(DIG2, GPIO.HIGH)
-
-    elif inp == "FORWARD":
-        rforward()  # GPIO.output(DIG1, GPIO.HIGH)
-        lforward()  # GPIO.output(DIG2, GPIO.LOW)
-
-    elif inp == "RIGHT":
-        rabbitRotateR()
-
-    elif inp == "LEFT":
-        rabbitRotateL()
-
-
-mqttBroker = "192.168.140.71"
-client = mqtt.Client("Controller_Subscriber")
-client.connect(mqttBroker)
-
-
-client.subscribe("Controller")
-# speed control try
-client.subscribe("Speed")
-
-
-client.on_message = on_message
-client.loop_forever()
+def ROTATE_RIGHT(pwm_value):
+    print("Rotate right")
+    GPIO.output(DIG1, GPIO.HIGH)
+    GPIO.output(DIG2, GPIO.HIGH)
+    GPIO.output(DIG3, GPIO.LOW)
+    GPIO.output(DIG4, GPIO.LOW)
+    p1.start(pwm_value)
+    p2.start(pwm_value)
+    p3.start(pwm_value)
+    p4.start(abs(map_motor_4(pwm_value, 0, 75, 0, 20)))
