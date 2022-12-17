@@ -2,8 +2,9 @@ import paho.mqtt.client as mqtt
 import cv2
 import sys
 sys.path.append("Motors")
+sys.path.append("Aruco")
 from Motor_Setup_Rabbit import *
-
+from Align_Aruco_Rabbit import PID
 
 def control_bot(client, userdata, message):
     print("Received message: ", str(message.payload.decode("utf-8")))
@@ -31,6 +32,8 @@ def control_bot(client, userdata, message):
         ROTATE_RIGHT(pwmval)
     elif(input == "STOP"):
         STOP()
+    elif(input == "ALIGN_ARUCO_RABBIT"):
+        PID(pwmval)
     
         
 

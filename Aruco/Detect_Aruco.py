@@ -31,7 +31,7 @@ def CO_ORDINATES():
 def findAruco(img, marker_size=6, total_markers=250, draw=True):
     flag = 0
     global aruco_id
-    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     key = getattr(aruco, f'DICT_{marker_size}X{marker_size}_{total_markers}')
     ARUCO_DICT = aruco.Dictionary_get(key)
     ARUCO_PARAMS = aruco.DetectorParameters_create()
@@ -53,13 +53,13 @@ def findAruco(img, marker_size=6, total_markers=250, draw=True):
                 2,
                 cv2.LINE_AA,
             )
-        flag = 1
+            flag = 1
     return ARUCO_DICT, ARUCO_PARAMS, flag
 
 
 def distance_pose(img, ARUCO_DICT, ARUCO_PARAMS):
     global aruco_distance, aruco_angle, x, y
-    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     corners, ids, reject = aruco.detectMarkers(
         gray, ARUCO_DICT, parameters=ARUCO_PARAMS)
     if corners:
@@ -93,7 +93,7 @@ def distance_pose(img, ARUCO_DICT, ARUCO_PARAMS):
                 )
                 rmat, jac = cv2.Rodrigues(rVec)
                 angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
-                aruco_angle=angles
+                aruco_angle=angles[1]
                 distance = np.sqrt(
                     tVec[i][0][2] ** 2 +
                     tVec[i][0][0] ** 2 + tVec[i][0][1] ** 2
